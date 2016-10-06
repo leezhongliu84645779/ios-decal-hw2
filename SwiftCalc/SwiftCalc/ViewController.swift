@@ -21,7 +21,9 @@ class ViewController: UIViewController {
     
     // TODO: This looks like a good place to add some data structures.
     //       One data structure is initialized below for reference.
-    var someDataStructure: [String] = [""]
+    var someDataStructure: [String] = []
+    var digitString: String = ""
+    var haveDouble = false
     
 
     override func viewDidLoad() {
@@ -52,6 +54,7 @@ class ViewController: UIViewController {
     // TODO: Ensure that resultLabel gets updated.
     //       Modify this one or create your own.
     func updateResultLabel(_ content: String) {
+        resultLabel.text = content
         print("Update me like one of those PCs")
     }
     
@@ -64,33 +67,143 @@ class ViewController: UIViewController {
     
     // TODO: A simple calculate method for integers.
     //       Modify this one or create your own.
-    func intCalculate(a: Int, b:Int, operation: String) -> Int {
+    func intCalculate(a: String, b:String, operation: String) -> Int {
         print("Calculation requested for \(a) \(operation) \(b)")
-        return 0
+        var result = 0
+        print("the operation is \(operation)")
+        let firstoperand = Int(a)
+        let secondoperand = Int(b)
+        switch operation {
+        case "+":
+            result = secondoperand! + firstoperand!
+        case "-":
+            result = secondoperand! - firstoperand!
+        case "*":
+            result = secondoperand! * firstoperand!
+        case "/":
+            result = secondoperand! / firstoperand!
+        default :
+            print( "default case")
+        }
+        return result
     }
     
     // TODO: A general calculate method for doubles
     //       Modify this one or create your own.
     func calculate(a: String, b:String, operation: String) -> Double {
+        var result = 0.0
         print("Calculation requested for \(a) \(operation) \(b)")
-        return 0.0
+        let firstoperand = Double(a) // firstText is UITextField
+        let secondoperand = Double(b) // secondText is UITextField
+        print("the operation is \(operation)")
+        switch operation {
+          case "+":
+            result = secondoperand! + firstoperand!
+          case "-":
+            result = secondoperand! - firstoperand!
+          case "*":
+            result = secondoperand! * firstoperand!
+          case "/":
+            result = secondoperand! / firstoperand!
+          default :
+            print( "default case")
+        }
+        return result
     }
     
     // REQUIRED: The responder to a number button being pressed.
     func numberPressed(_ sender: CustomButton) {
         guard Int(sender.content) != nil else { return }
         print("The number \(sender.content) was pressed")
-        // Fill me in!
+        digitString = digitString + sender.content
+        if digitString.characters.count > 7 {
+            let start = digitString.index(digitString.startIndex, offsetBy: 0)
+            let end = digitString.index(digitString.endIndex, offsetBy: -1)
+            let range = start..<end
+            digitString = digitString.substring(with: range)
+        }
+        updateResultLabel(digitString)
     }
     
     // REQUIRED: The responder to an operator button being pressed.
     func operatorPressed(_ sender: CustomButton) {
         // Fill me in!
+        someDataStructure.append(digitString)
+        if sender.content != "=" {
+            if sender.content == "C"{
+              digitString = ""
+              updateResultLabel("0")
+            }
+            //else if sender.content == "+/-"{
+              //digitString = String(Int(digitString)! * (-1))
+              //print("digitString is \(digitString) ")
+              //someDataStructure[someDataStructure.count - 1] = digitString
+              //print("now the last element is \(someDataStructure[someDataStructure.count - 1])")
+              //updateResultLabel(digitString)
+            //}
+            else{
+              someDataStructure.append(sender.content)
+            }
+        }
+        digitString = ""
+        print("the operand \(sender.content) was pressed")
+        if sender.content == "=" {
+            digitString = ""
+            var result = "0"
+            while someDataStructure.count > 1 {
+              let firstElement = someDataStructure[0]
+              print("the first element is \(firstElement)")
+              let operate = someDataStructure[1]
+              print("the operate is \(operate)")
+              let secondElement = someDataStructure[2]
+              print("the second element is \(secondElement)")
+              someDataStructure.remove(at: 0)
+              someDataStructure.remove(at: 1)
+              if (operate == "/") && Int(firstElement)! % Int(secondElement)! != 0{
+                self.haveDouble = true
+              }
+              if !haveDouble{
+                print("go to the int calculate")
+                result = String(intCalculate(a:secondElement, b:firstElement, operation:operate))
+              }
+              else {
+                print("go to the float calculate")
+                result = String(calculate(a:secondElement, b:firstElement, operation:operate))
+              }
+              someDataStructure[0] = result
+            }
+            updateResultLabel(result)
+            someDataStructure = []
+            haveDouble = false
+        }
     }
     
     // REQUIRED: The responder to a number or operator button being pressed.
     func buttonPressed(_ sender: CustomButton) {
        // Fill me in!
+        if sender.content == "."{
+            if digitString == ""{
+                digitString = digitString + "0."
+                haveDouble = true
+            }
+            else{
+              haveDouble = true
+              digitString = digitString + sender.content
+            }
+        }
+        else{
+            if digitString.characters.count > 7 {
+                let start = digitString.index(digitString.startIndex, offsetBy: 0)
+                let end = digitString.index(digitString.endIndex, offsetBy: -1)
+                let range = start..<end
+                digitString = digitString.substring(with: range)
+            }
+            else{
+              digitString = digitString + sender.content
+              updateResultLabel(sender.content)
+              print("sender content is .")
+            }
+        }
     }
     
     // IMPORTANT: Do NOT change any of the code below.
